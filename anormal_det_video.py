@@ -153,7 +153,7 @@ class model():
 
     # do not use scipy.spatial.distance.mahalanobis,
     # or may cause undesired issue with Nvidia Jetson Platform and lower speed
-    def compute_score(self, data):
+    def compute_score(self, data, fuse=True):
         mean_fused, cov_fused = fuse_param(self._mean, self.mean, self._cov, self.cov, self.anchor_weight)
         delta = data - mean_fused
         score = delta.unsqueeze(1).bmm(torch.linalg.inv(cov_fused)).bmm(delta.unsqueeze(-1)).view((1, 1, self.image_size[1] // 8, self.image_size[0] // 8)) ** 0.5
@@ -213,7 +213,7 @@ class model():
             all_idx_h, all_idx_w = np.where(scores>self.alarm_th)
             score_all = scores[all_idx_h.min():all_idx_h.max()+1, all_idx_w.min():all_idx_w.max()+1].mean() if len(all_idx_h) else 0
 
-            # # filtering
+            # SET_YOUR_OWN_DETECTION_THRESHOLD
             if score > self.alarm_th and scores.mean() > 5 and ((res < 1.5 and scores.mean() < 35) or (res < 1 and score_all>self.alarm_th*0.8)):
                 curr_time = datetime.datetime.now()
                 savepath = os.path.join(self.exp_path, str(curr_time.minute) + "_" + str(curr_time.second) + "_" + str(curr_time.microsecond))
