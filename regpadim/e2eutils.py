@@ -48,6 +48,8 @@ def fused_map(fs_list, out_size):
     return torch.cat([a_map, b_map, c_map], dim=1)
 
 def fuse_param(m1, m2, c1, c2=0, w1=0.5):
+    if w1 == 1:
+        return m1, c1
     delta = m1 - m2
     if isinstance (delta, torch.Tensor):
         cov_ = c2 + w1 * torch.matmul(delta[:, :, None], delta[:, None])
